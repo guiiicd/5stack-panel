@@ -139,6 +139,28 @@ replacements:
           name: 5stack-issuer
         fieldPaths:
           - spec.acme.email
+  - source:
+      kind: ConfigMap
+      name: nginx-config
+      fieldPath: data.HTTP_PORT
+    targets:
+      - select:
+          kind: Service
+          name: ingress-nginx-controller
+          namespace: ingress-nginx
+        fieldPaths:
+          - spec.ports.0.port
+  - source:
+      kind: ConfigMap
+      name: nginx-config
+      fieldPath: data.HTTPS_PORT
+    targets:
+      - select:
+          kind: Service
+          name: ingress-nginx-controller
+          namespace: ingress-nginx
+        fieldPaths:
+          - spec.ports.1.port
 
 patches:
   - target:
