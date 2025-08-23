@@ -29,7 +29,6 @@ replacements:
           name: demos
         fieldPaths:
           - spec.rules.0.host
-          - spec.rules.1.host
   - source:
       kind: ConfigMap
       name: api-config
