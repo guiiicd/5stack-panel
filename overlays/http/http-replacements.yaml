@@ -77,6 +77,16 @@ replacements:
           - spec.ports.0.port
   - source:
       kind: ConfigMap
+      name: api-config
+      fieldPath: data.MAIL_FROM
+    targets:
+      - select:
+          kind: Issuer
+          name: 5stack-issuer
+        fieldPaths:
+          - spec.acme.email
+  - source:
+      kind: ConfigMap
       name: nginx-config
       fieldPath: data.HTTPS_PORT
     targets:
