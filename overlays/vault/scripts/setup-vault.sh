@@ -55,11 +55,23 @@ path "*" {
 }
 EOF
 
-echo "Creating Vault role for Kubernetes authentication..."
-vault write auth/kubernetes/role/external-secrets \
-    bound_service_account_names=5stack \
-    bound_service_account_namespaces=5stack \
-    policies=external-secrets \
-    ttl=1h
+echo "Checking Vault role for Kubernetes authentication..."
+if vault read auth/kubernetes/role/external-secrets &> /dev/null; then
+    echo "Role external-secrets already exists, updating with audience parameter..."
+    vault write auth/kubernetes/role/external-secrets \
+        bound_service_account_names=5stack \
+        bound_service_account_namespaces=5stack \
+        policies=external-secrets \
+        ttl=1h \
+        audience="https://kubernetes.default.svc.cluster.local"
+else
+    echo "Creating Vault role for Kubernetes authentication..."
+    vault write auth/kubernetes/role/external-secrets \
+        bound_service_account_names=5stack \
+        bound_service_account_namespaces=5stack \
+        policies=external-secrets \
+        ttl=1h \
+        audience="https://kubernetes.default.svc.cluster.local"
+fi
 
 echo "Vault authentication setup completed successfully!"
