@@ -25,7 +25,7 @@ echo "Installing K3s"
 curl -sfL https://get.k3s.io | sh -s - --disable=traefik
 
 echo "Installing Ingress Nginx, this may take a few minutes..."
-output_redirect kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.1/deploy/static/provider/baremetal/deploy.yaml
+output_redirect kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.13.2/deploy/static/provider/baremetal/deploy.yaml
 
 while true; do
   PODS=$(kubectl get pods -n ingress-nginx -l app.kubernetes.io/component=controller -o jsonpath='{.items[*].metadata.name}' 2>/dev/null)
