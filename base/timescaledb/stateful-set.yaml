@@ -38,6 +38,11 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
             failureThreshold: 3
+          startupProbe:
+            tcpSocket:
+              port: 5432
+            periodSeconds: 5
+            failureThreshold: 60
           livenessProbe:
             tcpSocket:
               port: 5432

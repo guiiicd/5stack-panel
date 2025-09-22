@@ -32,11 +32,17 @@ spec:
             - containerPort: 9090
           readinessProbe:
             httpGet:
-              path: /minio/health/live
+              path: /minio/health/ready
               port: 9000
             initialDelaySeconds: 5
             periodSeconds: 5
             failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /minio/health/live
+              port: 9000
+            periodSeconds: 5
+            failureThreshold: 60
           livenessProbe:
             httpGet:
               path: /minio/health/live
