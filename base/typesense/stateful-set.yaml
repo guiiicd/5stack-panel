@@ -29,6 +29,20 @@ spec:
           image: typesense/typesense:28.0
           ports:
             - containerPort: 8108
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8108
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8108
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
           env:
             - name: TYPESENSE_DATA_DIR
               value: /data

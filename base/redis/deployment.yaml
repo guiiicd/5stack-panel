@@ -33,6 +33,18 @@ spec:
         ports:
         - containerPort: 6379
           protocol: TCP
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          failureThreshold: 3
         envFrom:
           - secretRef:
               name: redis-secrets 

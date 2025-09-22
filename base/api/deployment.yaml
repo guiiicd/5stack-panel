@@ -36,6 +36,20 @@ spec:
           ports:
             - containerPort: 5585
             - containerPort: 5586
+          readinessProbe:
+            httpGet:
+              path: /system/healthz
+              port: 5585
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /system/healthz
+              port: 5585
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
           env:
             - name: POD_NAME
               valueFrom:

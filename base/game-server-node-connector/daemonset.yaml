@@ -20,6 +20,20 @@ spec:
       containers:
         - image: ghcr.io/5stackgg/game-server-node:latest
           name: game-server-node-connector
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
           env:
             - name: NODE_NAME
               valueFrom:

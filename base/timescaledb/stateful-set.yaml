@@ -32,6 +32,18 @@ spec:
           ports:
             - containerPort: 5432
               protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
           envFrom:
             - secretRef:
                 name: timescaledb-secrets
