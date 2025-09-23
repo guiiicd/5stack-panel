@@ -14,12 +14,22 @@ spec:
       labels:
         app: game-server-node-connector
     spec:
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       serviceAccountName: game-server-node-connector
       containers:
         - image: ghcr.io/5stackgg/game-server-node:latest
           name: game-server-node-connector
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 12
           readinessProbe:
             httpGet:
               path: /healthz
@@ -27,18 +37,13 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
             failureThreshold: 3
-          startupProbe:
-            httpGet:
-              path: /healthz
-              port: 8080
-            periodSeconds: 5
-            failureThreshold: 60
+            successThreshold: 2
           livenessProbe:
             httpGet:
               path: /healthz
               port: 8080
             initialDelaySeconds: 15
-            periodSeconds: 10
+            periodSeconds: 15
             failureThreshold: 3
           env:
             - name: NODE_NAME

@@ -18,6 +18,10 @@ spec:
       labels:
         app: redis
     spec:
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -33,22 +37,23 @@ spec:
         ports:
         - containerPort: 6379
           protocol: TCP
+        startupProbe:
+          tcpSocket:
+            port: 6379
+          periodSeconds: 5
+          failureThreshold: 12
         readinessProbe:
           tcpSocket:
             port: 6379
           initialDelaySeconds: 5
           periodSeconds: 5
           failureThreshold: 3
-        startupProbe:
-          tcpSocket:
-            port: 6379
-          periodSeconds: 5
-          failureThreshold: 60
+          successThreshold: 2
         livenessProbe:
           tcpSocket:
             port: 6379
           initialDelaySeconds: 15
-          periodSeconds: 10
+          periodSeconds: 15
           failureThreshold: 3
         envFrom:
           - secretRef:

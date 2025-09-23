@@ -21,6 +21,10 @@ spec:
         app: api
     spec:
       serviceAccountName: server-creator
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -36,6 +40,12 @@ spec:
           ports:
             - containerPort: 5585
             - containerPort: 5586
+          startupProbe:
+            httpGet:
+              path: /system/healthz
+              port: 5585
+            periodSeconds: 5
+            failureThreshold: 12
           readinessProbe:
             httpGet:
               path: /system/healthz
@@ -43,18 +53,13 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
             failureThreshold: 3
-          startupProbe:
-            httpGet:
-              path: /system/healthz
-              port: 5585
-            periodSeconds: 5
-            failureThreshold: 60
+            successThreshold: 2
           livenessProbe:
             httpGet:
               path: /system/healthz
               port: 5585
             initialDelaySeconds: 15
-            periodSeconds: 10
+            periodSeconds: 15
             failureThreshold: 3
           env:
             - name: POD_NAME

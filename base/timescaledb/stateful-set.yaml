@@ -13,6 +13,10 @@ spec:
       labels:
         app: timescaledb
     spec:
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -32,22 +36,23 @@ spec:
           ports:
             - containerPort: 5432
               protocol: TCP
+          startupProbe:
+            tcpSocket:
+              port: 5432
+            periodSeconds: 5
+            failureThreshold: 12
           readinessProbe:
             tcpSocket:
               port: 5432
             initialDelaySeconds: 5
             periodSeconds: 5
             failureThreshold: 3
-          startupProbe:
-            tcpSocket:
-              port: 5432
-            periodSeconds: 5
-            failureThreshold: 60
+            successThreshold: 2
           livenessProbe:
             tcpSocket:
               port: 5432
             initialDelaySeconds: 15
-            periodSeconds: 10
+            periodSeconds: 15
             failureThreshold: 3
           envFrom:
             - secretRef:
