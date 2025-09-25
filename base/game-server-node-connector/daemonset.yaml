@@ -45,6 +45,10 @@ spec:
             initialDelaySeconds: 15
             periodSeconds: 15
             failureThreshold: 3
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
           env:
             - name: NODE_NAME
               valueFrom:
@@ -60,6 +64,8 @@ spec:
               mountPath: /serverfiles
             - name: demos
               mountPath: /demos
+            - name: manifests
+              mountPath: /pod-manifests
       volumes:
         - name: server-files
           hostPath:
@@ -68,4 +74,8 @@ spec:
         - name: demos
           hostPath:
             path: /opt/5stack/demos
+            type: Directory
+        - name: manifests
+          hostPath:
+            path: /var/lib/rancher/k3s/agent/pod-manifests
             type: Directory

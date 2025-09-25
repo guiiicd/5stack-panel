@@ -33,6 +33,10 @@ spec:
       containers:
         - image: ghcr.io/5stackgg/game-server-node:latest
           name: dev-game-server-node-connector
+          ports:
+            - containerPort: 7080
+              name: health
+              protocol: TCP
           env:
             - name: HEALTH_PORT
               value: "7080"
@@ -50,6 +54,8 @@ spec:
               mountPath: /serverfiles
             - name: demos
               mountPath: /demos
+            - name: manifests
+              mountPath: /pod-manifests
       volumes:
         - name: server-files
           hostPath:
@@ -59,4 +65,7 @@ spec:
           hostPath:
             path: /opt/5stack/demos
             type: Directory
-   
+        - name: manifests
+          hostPath:
+            path: /var/lib/rancher/k3s/agent/pod-manifests
+            type: Directory
