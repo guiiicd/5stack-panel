@@ -39,7 +39,6 @@ spec:
           name: api
           ports:
             - containerPort: 5585
-            - containerPort: 5586
           startupProbe:
             httpGet:
               path: /system/healthz

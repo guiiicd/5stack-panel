@@ -9,9 +9,5 @@ spec:
       name: http
       protocol: TCP
       targetPort: 5585
-    - port: 5586
-      name: game-server-node-ws
-      protocol: TCP
-      targetPort: 5586
   selector:
     app: api
