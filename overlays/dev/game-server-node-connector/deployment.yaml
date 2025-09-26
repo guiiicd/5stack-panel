@@ -56,6 +56,9 @@ spec:
               mountPath: /demos
             - name: manifests
               mountPath: /pod-manifests
+            - name: containerd-sock
+              mountPath: /containerd.sock
+              readOnly: true
       volumes:
         - name: server-files
           hostPath:
@@ -69,3 +72,6 @@ spec:
           hostPath:
             path: /var/lib/rancher/k3s/agent/pod-manifests
             type: Directory
+        - name: containerd-sock
+          hostPath:
+            path: /run/k3s/containerd/containerd.sock
