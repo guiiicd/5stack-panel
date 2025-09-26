@@ -22,17 +22,17 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       serviceAccountName: game-server-node-connector
       containers:
-        - image: ghcr.io/5stackgg/game-server-node:latest
+        - image: ghcr.io/5stackgg/game-server-node-connector:latest
           name: game-server-node-connector
           startupProbe:
             httpGet:
-              path: /healthz
+              path: /system/healthz
               port: 8080
             periodSeconds: 5
             failureThreshold: 12
           readinessProbe:
             httpGet:
-              path: /healthz
+              path: /system/healthz
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 5
@@ -40,7 +40,7 @@ spec:
             successThreshold: 2
           livenessProbe:
             httpGet:
-              path: /healthz
+              path: /system/healthz
               port: 8080
             initialDelaySeconds: 15
             periodSeconds: 15
