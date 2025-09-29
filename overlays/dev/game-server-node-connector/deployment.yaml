@@ -59,6 +59,9 @@ spec:
             - name: containerd-sock
               mountPath: /containerd.sock
               readOnly: true
+            - name: cpu-sys
+              mountPath: /host-cpu
+              readOnly: true
       volumes:
         - name: server-files
           hostPath:
@@ -75,3 +78,6 @@ spec:
         - name: containerd-sock
           hostPath:
             path: /run/k3s/containerd/containerd.sock
+        - name: cpu-sys
+          hostPath:
+            path: /sys/devices/system/cpu/
