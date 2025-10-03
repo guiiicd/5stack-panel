@@ -5,6 +5,19 @@ source setup-env.sh "$@"
 namespace="5stack"
 debug_file="debug_output_$(date +%Y%m%d_%H%M%S).txt"
 
+echo "(KUBECONFIG: $KUBECONFIG, REVERSE_PROXY: $REVERSE_PROXY)" | tee -a "$debug_file"
+
+echo "Domains and Hosts Configuration:" | tee -a "$debug_file"
+echo "--------------------------------" | tee -a "$debug_file"
+echo "WEB_DOMAIN: $WEB_DOMAIN" | tee -a "$debug_file"
+echo "WS_DOMAIN: $WS_DOMAIN" | tee -a "$debug_file"
+echo "API_DOMAIN: $API_DOMAIN" | tee -a "$debug_file"
+echo "DEMOS_DOMAIN: $DEMOS_DOMAIN" | tee -a "$debug_file"
+echo "MAIL_FROM: $MAIL_FROM" | tee -a "$debug_file"
+echo "S3_CONSOLE_HOST: $S3_CONSOLE_HOST" | tee -a "$debug_file"
+echo "TYPESENSE_HOST: $TYPESENSE_HOST" | tee -a "$debug_file"
+echo "--------------------------------" | tee -a "$debug_file"  
+
 echo "Checking pod status and restarts in namespace $namespace..." | tee -a "$debug_file"
 echo "---------------------------------------" | tee -a "$debug_file"
 
