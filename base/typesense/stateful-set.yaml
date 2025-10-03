@@ -30,7 +30,7 @@ spec:
                   - "true"
       containers:
         - name: typesense
-          image: typesense/typesense:28.0
+          image: typesense/typesense:29.0
           ports:
             - containerPort: 8108
           startupProbe:
@@ -72,7 +72,7 @@ spec:
             - --enable-cors
             - --cors-domains=http://localhost,https://$(TYPESENSE_HOST)
         - name: typesense-web
-          image: ghcr.io/bfritscher/typesense-dashboard:2.0.4
+          image: ghcr.io/bfritscher/typesense-dashboard:2.3.0
           ports:
             - containerPort: 80
           volumeMounts:
