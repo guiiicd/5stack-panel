@@ -12,3 +12,24 @@ data:
     user default on >${REDIS_PASSWORD} allcommands allkeys +@all &*
     io-threads-do-reads yes
     io-threads ${IO_THREADS}
+
+    # Take snapshots every 15 min if 1+ keys changed, and more frequently if busier
+    save 900 1
+    save 300 10
+    save 60 10000
+
+    # --- AOF (Append Only File) ---
+    appendonly yes
+    appendfilename "appendonly.aof"
+
+    # Flush to disk once per second — safest practical option
+    appendfsync everysec
+
+    # Avoid fsync during rewrite to reduce pause time
+    no-appendfsync-on-rewrite yes
+
+    # Use the hybrid persistence format (RDB preamble + incremental AOF)
+    aof-use-rdb-preamble yes
+
+    # Optional: compress AOF for smaller file size
+    aof-rewrite-incremental-fsync yes
