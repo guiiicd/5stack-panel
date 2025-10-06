@@ -72,7 +72,7 @@ spec:
               sleep 10 &&
               mc alias set myminio http://localhost:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
               mc mb myminio/${S3_BUCKET} || true
-              mc mb myminio/${S3_DB_BACKUP_BUCKET} || true
+              mc mb myminio/${S3_DB_BACKUP_BUCKET:-5stack-db-backups} || true
               mc admin user add myminio ${S3_ACCESS_KEY} ${S3_SECRET} &&
               mc admin policy attach myminio readwrite --user=${S3_ACCESS_KEY}
               wait

@@ -33,7 +33,7 @@ spec:
                   
                   zip -j "$ZIP_FILE" "$DUMP_FILE"
 
-                  ENDPOINT="$S3_ENDPOINT"
+                  ENDPOINT="${S3_ENDPOINT:-minio}"
 
                   if [ "$ENDPOINT" = "minio" ]; then
                     ENDPOINT="http://minio:9000"
@@ -45,9 +45,7 @@ spec:
                   export AWS_SECRET_ACCESS_KEY="$S3_SECRET"
                   export AWS_DEFAULT_REGION="${S3_REGION:-us-east-1}"
 
-                  if [ -z "$S3_DB_BACKUP_BUCKET" ]; then
-                    S3_DB_BACKUP_BUCKET="5stack-db-backups"
-                  fi
+                  S3_DB_BACKUP_BUCKET="${S3_DB_BACKUP_BUCKET:-5stack-db-backups}"
 
                   echo "Uploading to $ENDPOINT : $S3_DB_BACKUP_BUCKET/backup-$TS.zip"
 
