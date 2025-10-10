@@ -228,50 +228,39 @@ MAIL_FROM=$(grep -h "^MAIL_FROM=" overlays/config/api-config.env | cut -d '=' -f
 S3_CONSOLE_HOST=$(grep -h "^S3_CONSOLE_HOST=" overlays/config/s3-config.env | cut -d '=' -f2-)
 TYPESENSE_HOST=$(grep -h "^TYPESENSE_HOST=" overlays/config/typesense-config.env | cut -d '=' -f2-)
 
-if [ -z "$WEB_DOMAIN" ] || [ -z "$WS_DOMAIN" ] || [ -z "$API_DOMAIN" ] || [ -z "$DEMOS_DOMAIN" ] || [ -z "$MAIL_FROM" ] || [ -z "$S3_CONSOLE_HOST" ] || [ -z "$TYPESENSE_HOST" ]; then
-    echo -e "\n\n\n\033[1;36mEnter your base domain (e.g. example.com):\033[0m"
+# Function to ask for a domain and update the config file
+ask_and_update_domain() {
+    local env_var_name=$1
+    local file_path=$2
+    local prompt_message=$3
+    local current_value
 
-    read BASE_DOMAIN
-    while [ -z "$BASE_DOMAIN" ]; do
-        echo "Base domain cannot be empty. Please enter your base domain (e.g. example.com):"
-        read BASE_DOMAIN
-    done
-    
-    if [ -z "$WEB_DOMAIN" ]; then
-        WEB_DOMAIN=$BASE_DOMAIN
-        update_env_var "overlays/config/api-config.env" "WEB_DOMAIN" "$WEB_DOMAIN"
-    fi
+    # Get the current value of the variable by using indirection
+    eval "current_value=\$$env_var_name"
 
-    if [ -z "$WS_DOMAIN" ]; then
-        WS_DOMAIN="ws.$BASE_DOMAIN"
-        update_env_var "overlays/config/api-config.env" "WS_DOMAIN" "$WS_DOMAIN"
+    if [ -z "$current_value" ]; then
+        echo -e "\n\033[1;36m$prompt_message:\033[0m"
+        read new_value
+        while [ -z "$new_value" ]; do
+            echo "This field cannot be empty. Please enter a value:"
+            read new_value
+        done
+        # Update the variable in the script's environment
+        eval "$env_var_name=\$new_value"
+        # Update the variable in the config file
+        update_env_var "$file_path" "$env_var_name" "$new_value"
     fi
+}
 
-    if [ -z "$API_DOMAIN" ]; then
-        API_DOMAIN="api.$BASE_DOMAIN"
-        update_env_var "overlays/config/api-config.env" "API_DOMAIN" "$API_DOMAIN"
-    fi
+# Ask for each domain individually if it's not set
+ask_and_update_domain "WEB_DOMAIN" "overlays/config/api-config.env" "Enter your Web Domain (e.g., cs2.depizol.com.br)"
+ask_and_update_domain "WS_DOMAIN" "overlays/config/api-config.env" "Enter your WebSocket Domain (e.g., wscs2.depizol.com.br)"
+ask_and_update_domain "API_DOMAIN" "overlays/config/api-config.env" "Enter your API Domain (e.g., apics2.depizol.com.br)"
+ask_and_update_domain "DEMOS_DOMAIN" "overlays/config/api-config.env" "Enter your Demos Domain (e.g., demoscs2.depizol.com.br)"
+ask_and_update_domain "MAIL_FROM" "overlays/config/api-config.env" "Enter your Mail From address (e.g., contact@depizol.com.br)"
+ask_and_update_domain "S3_CONSOLE_HOST" "overlays/config/s3-config.env" "Enter your S3 Console Host (e.g., s3cs2.depizol.com.br)"
+ask_and_update_domain "TYPESENSE_HOST" "overlays/config/typesense-config.env" "Enter your Typesense Host (e.g., searchcs2.depizol.com.br)"
 
-    if [ -z "$DEMOS_DOMAIN" ]; then
-        DEMOS_DOMAIN="demos.$BASE_DOMAIN"
-        update_env_var "overlays/config/api-config.env" "DEMOS_DOMAIN" "$DEMOS_DOMAIN"
-    fi
-
-    if [ -z "$MAIL_FROM" ]; then
-        MAIL_FROM="hello@$BASE_DOMAIN"
-        update_env_var "overlays/config/api-config.env" "MAIL_FROM" "$MAIL_FROM"
-    fi
-
-    if [ -z "$S3_CONSOLE_HOST" ]; then
-        S3_CONSOLE_HOST="console.$BASE_DOMAIN"
-        update_env_var "overlays/config/s3-config.env" "S3_CONSOLE_HOST" "$S3_CONSOLE_HOST"
-    fi
-
-    if [ -z "$TYPESENSE_HOST" ]; then
-        TYPESENSE_HOST="search.$BASE_DOMAIN"
-        update_env_var "overlays/config/typesense-config.env" "TYPESENSE_HOST" "$TYPESENSE_HOST"
-    fi
-fi
 
 STEAM_WEB_API_KEY=$(grep -h "^STEAM_WEB_API_KEY=" overlays/local-secrets/steam-secrets.env | cut -d '=' -f2-)
 
@@ -316,5 +305,3 @@ echo "MAIL_FROM: $MAIL_FROM"
 echo "S3_CONSOLE_HOST: $S3_CONSOLE_HOST"
 echo "TYPESENSE_HOST: $TYPESENSE_HOST"
 echo "--------------------------------"
-
-
