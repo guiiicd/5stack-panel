@@ -5,19 +5,8 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-while true; do
-    read -p "Your domain will be with or without subdomain? (with/without): " domain_choice
-    if [ "$domain_choice" = "with" ] || [ "$domain_choice" = "without" ]; then
-        break
-    fi
-    echo "Please enter 'with' or 'without'"
-done
-
-if [ "$domain_choice" = "with" ]; then
-    source setup-env-subdomain.sh "$@"
-else
-    source setup-env-no-subdomain.sh "$@"
-fi
+# A linha abaixo irá chamar nosso novo script "roteador"
+source setup-env.sh "$@"
 
 echo "Setup FileSystem"
 mkdir -p /opt/5stack/dev
