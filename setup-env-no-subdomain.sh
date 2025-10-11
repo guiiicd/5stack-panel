@@ -73,7 +73,7 @@ update_env_var() {
     local file=$1
     local key=$2
     local value=$3
-    
+
     if [[ "$OSTYPE" == "darwin"* ]]; then
         sed -i '' "s|^$key=.*|$key=$value|" "$file"
     else
@@ -92,33 +92,33 @@ output_redirect() {
 migrate_secrets_to_vault() {
     local secret_file=$1
     local vault_path=$2
-    
+
     if [ ! -f "$secret_file" ]; then
         echo "Warning: $secret_file not found, skipping..."
         return
     fi
-    
+
     # Read current file and migrate non-VAULT values
     while IFS='=' read -r key value || [ -n "$key" ]; do
         # Skip comments and empty lines
         if [[ $key =~ ^[[:space:]]*# ]] || [[ -z "$key" ]]; then
             continue
         fi
-        
+
         key=$(echo "$key" | xargs)
         value=$(echo "$value" | xargs)
-        
+
         # Skip if already VAULT or empty
         if [ "$value" = "VAULT" ] || [ -z "$key" ] || [ -z "$value" ]; then
             continue
         fi
 
         echo "Migrating $key to Vault"
-        
+
         # Upload to Vault
         local json_data=$(jq -n --arg k "$key" --arg v "$value" '{($k): $v}')
         echo "$json_data" | vault kv patch "$vault_path" -
-        
+
         if [ $? -eq 0 ]; then
             echo "  ✓ Migrated $key to Vault"
             # Append to backup after successful upload
@@ -136,7 +136,7 @@ migrate_secrets_to_vault() {
 }
 
 if [ -z "$REVERSE_PROXY" ]; then
-    ask_reverse_proxy   
+    ask_reverse_proxy
 fi
 
 if [ ! -f .5stack-env.config ]; then
@@ -228,39 +228,50 @@ MAIL_FROM=$(grep -h "^MAIL_FROM=" overlays/config/api-config.env | cut -d '=' -f
 S3_CONSOLE_HOST=$(grep -h "^S3_CONSOLE_HOST=" overlays/config/s3-config.env | cut -d '=' -f2-)
 TYPESENSE_HOST=$(grep -h "^TYPESENSE_HOST=" overlays/config/typesense-config.env | cut -d '=' -f2-)
 
-# Function to ask for a domain and update the config file
-ask_and_update_domain() {
-    local env_var_name=$1
-    local file_path=$2
-    local prompt_message=$3
-    local current_value
+if [ -z "$WEB_DOMAIN" ] || [ -z "$WS_DOMAIN" ] || [ -z "$API_DOMAIN" ] || [ -z "$DEMOS_DOMAIN" ] || [ -z "$MAIL_FROM" ] || [ -z "$S3_CONSOLE_HOST" ] || [ -z "$TYPESENSE_HOST" ]; then
+    echo -e "\n\n\n\033[1;36mEnter your base domain (e.g. example.com):\033[0m"
 
-    # Get the current value of the variable by using indirection
-    eval "current_value=\$$env_var_name"
+    read BASE_DOMAIN
+    while [ -z "$BASE_DOMAIN" ]; do
+        echo "Base domain cannot be empty. Please enter your base domain (e.g. example.com):"
+        read BASE_DOMAIN
+    done
 
-    if [ -z "$current_value" ]; then
-        echo -e "\n\033[1;36m$prompt_message:\033[0m"
-        read new_value
-        while [ -z "$new_value" ]; do
-            echo "This field cannot be empty. Please enter a value:"
-            read new_value
-        done
-        # Update the variable in the script's environment
-        eval "$env_var_name=\$new_value"
-        # Update the variable in the config file
-        update_env_var "$file_path" "$env_var_name" "$new_value"
+    if [ -z "$WEB_DOMAIN" ]; then
+        WEB_DOMAIN=$BASE_DOMAIN
+        update_env_var "overlays/config/api-config.env" "WEB_DOMAIN" "$WEB_DOMAIN"
     fi
-}
 
-# Ask for each domain individually if it's not set
-ask_and_update_domain "WEB_DOMAIN" "overlays/config/api-config.env" "Enter your Web Domain (e.g., cs2.depizol.com.br)"
-ask_and_update_domain "WS_DOMAIN" "overlays/config/api-config.env" "Enter your WebSocket Domain (e.g., wscs2.depizol.com.br)"
-ask_and_update_domain "API_DOMAIN" "overlays/config/api-config.env" "Enter your API Domain (e.g., apics2.depizol.com.br)"
-ask_and_update_domain "DEMOS_DOMAIN" "overlays/config/api-config.env" "Enter your Demos Domain (e.g., demoscs2.depizol.com.br)"
-ask_and_update_domain "MAIL_FROM" "overlays/config/api-config.env" "Enter your Mail From address (e.g., contact@depizol.com.br)"
-ask_and_update_domain "S3_CONSOLE_HOST" "overlays/config/s3-config.env" "Enter your S3 Console Host (e.g., s3cs2.depizol.com.br)"
-ask_and_update_domain "TYPESENSE_HOST" "overlays/config/typesense-config.env" "Enter your Typesense Host (e.g., searchcs2.depizol.com.br)"
+    if [ -z "$WS_DOMAIN" ]; then
+        WS_DOMAIN="ws.$BASE_DOMAIN"
+        update_env_var "overlays/config/api-config.env" "WS_DOMAIN" "$WS_DOMAIN"
+    fi
 
+    if [ -z "$API_DOMAIN" ]; then
+        API_DOMAIN="api.$BASE_DOMAIN"
+        update_env_var "overlays/config/api-config.env" "API_DOMAIN" "$API_DOMAIN"
+    fi
+
+    if [ -z "$DEMOS_DOMAIN" ]; then
+        DEMOS_DOMAIN="demos.$BASE_DOMAIN"
+        update_env_var "overlays/config/api-config.env" "DEMOS_DOMAIN" "$DEMOS_DOMAIN"
+    fi
+
+    if [ -z "$MAIL_FROM" ]; then
+        MAIL_FROM="hello@$BASE_DOMAIN"
+        update_env_var "overlays/config/api-config.env" "MAIL_FROM" "$MAIL_FROM"
+    fi
+
+    if [ -z "$S3_CONSOLE_HOST" ]; then
+        S3_CONSOLE_HOST="console.$BASE_DOMAIN"
+        update_env_var "overlays/config/s3-config.env" "S3_CONSOLE_HOST" "$S3_CONSOLE_HOST"
+    fi
+
+    if [ -z "$TYPESENSE_HOST" ]; then
+        TYPESENSE_HOST="search.$BASE_DOMAIN"
+        update_env_var "overlays/config/typesense-config.env" "TYPESENSE_HOST" "$TYPESENSE_HOST"
+    fi
+fi
 
 STEAM_WEB_API_KEY=$(grep -h "^STEAM_WEB_API_KEY=" overlays/local-secrets/steam-secrets.env | cut -d '=' -f2-)
 
@@ -276,12 +287,12 @@ if [ "$VAULT_MANAGER" = true ]; then
         echo "Error: vault CLI is not installed. Please install it first (https://developer.hashicorp.com/vault/install)."
         exit 1
     fi
-    
+
     if ! vault status &> /dev/null; then
         echo "Error: Not logged into vault. Please run 'vault login' first"
         exit 1
     fi
-    
+
     migrate_secrets_to_vault "overlays/local-secrets/api-secrets.env" "kv/api"
     migrate_secrets_to_vault "overlays/local-secrets/steam-secrets.env" "kv/steam"
     migrate_secrets_to_vault "overlays/local-secrets/timescaledb-secrets.env" "kv/timescaledb"
@@ -298,7 +309,7 @@ fi
 echo "Domains and Hosts Configuration:"
 echo "--------------------------------"
 echo "WEB_DOMAIN: $WEB_DOMAIN"
-echo "WS_DOMAIN: $WS_DOMAIN" 
+echo "WS_DOMAIN: $WS_DOMAIN"
 echo "API_DOMAIN: $API_DOMAIN"
 echo "DEMOS_DOMAIN: $DEMOS_DOMAIN"
 echo "MAIL_FROM: $MAIL_FROM"
