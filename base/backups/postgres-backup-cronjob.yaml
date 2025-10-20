@@ -49,7 +49,7 @@ spec:
 
                   echo "Uploading to $ENDPOINT : $S3_DB_BACKUP_BUCKET/backup-$TS.zip"
 
-                  aws s3 cp "$ZIP_FILE" "s3://$S3_DB_BACKUP_BUCKET/backup-$TS.zip" --endpoint-url "$ENDPOINT" --no-progress
+                  aws s3 cp "$ZIP_FILE" "s3://$S3_DB_BACKUP_BUCKET/backup-$TS.zip" --endpoint-url "$ENDPOINT"
 
                   echo "Backup complete: $ZIP_FILE"
 
@@ -65,7 +65,7 @@ spec:
                     echo "Pruning old backups, keeping latest 7"
                     echo "$DELETEABLE_KEYS" | while IFS= read -r KEY; do
                       echo "Deleting old backup: $KEY"
-                      aws s3 rm "s3://$S3_DB_BACKUP_BUCKET/$KEY" --endpoint-url "$ENDPOINT" --no-progress || true
+                      aws s3 rm "s3://$S3_DB_BACKUP_BUCKET/$KEY" --endpoint-url "$ENDPOINT" || true
                     done
                     echo "Pruning complete"
                   fi
